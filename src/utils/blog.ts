@@ -55,40 +55,30 @@ function extractHeadings(markdown: string) {
   return headings;
 }
 
-export async function getPostBySlug(slug: string): Promise<BlogPost> {
+export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
   try {
     const fullPath = path.join(BLOG_DIR, `${slug}.md`);
-    
-    if (!fs.existsSync(fullPath)) {
-      throw new Error(`Blog post not found: ${slug}`);
-    }
-
     const fileContents = fs.readFileSync(fullPath, 'utf8');
-    const { data, content } = matter(fileContents);
-    
-    const tableOfContents = extractHeadings(content);
-    const readingTime = calculateReadingTime(content);
+    const { data: frontmatter, content } = matter(fileContents);
 
-    // Clean up frontmatter data
-    const cleanData = {
-      title: data.title || '',
-      date: data.date ? new Date(data.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
-      author: data.author || 'Anonymous',
-      excerpt: data.description || '',
-      tags: Array.isArray(data.tags) ? data.tags : [],
-      tldr: data.tldr || '',
-      readingTime: calculateReadingTime(content), // Ensure readingTime is always set
-    };
+    const readingTime = calculateReadingTime(content);
+    const tableOfContents = extractHeadings(content);
 
     return {
       slug,
       content,
-      ...cleanData,
+      readingTime,
       tableOfContents,
+      title: frontmatter.title,
+      date: frontmatter.date,
+      author: frontmatter.author,
+      excerpt: frontmatter.excerpt,
+      tags: frontmatter.tags || [],
+      tldr: frontmatter.tldr,
     };
   } catch (error) {
-    console.error(`Error getting post ${slug}:`, error);
-    throw error;
+    console.error(`Error getting post for slug ${slug}:`, error);
+    return null;
   }
 }
 
@@ -97,17 +87,26 @@ export async function getAllPosts(): Promise<BlogPost[]> {
     .filter(file => file.endsWith('.md'))
     .map(file => file.replace(/\.md$/, ''));
   
-  const posts = await Promise.all(slugs.map(getPostBySlug));
+  const posts = await Promise.all(slugs.map(async (slug) => {
+    const post = await getPostBySlug(slug);
+    if (!post) {
+      console.warn(`Skipping invalid post: ${slug}`);
+      return null;
+    }
+    return post;
+  }));
   
-  return posts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  // Filter out null values and sort by date
+  return posts.filter((post): post is BlogPost => post !== null)
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 }
 
 export async function getRecommendedPosts(currentPost: BlogPost): Promise<BlogPost[]> {
   const allPosts = await getAllPosts();
   
+  // Filter out the current post and get up to 3 recommended posts
   return allPosts
     .filter(post => post.slug !== currentPost.slug)
-    .filter(post => post.tags.some(tag => currentPost.tags.includes(tag)))
     .slice(0, 3);
 }
 

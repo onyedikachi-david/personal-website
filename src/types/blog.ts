@@ -13,6 +13,11 @@ export interface BlogPost {
     time: number;
     words: number;
   };
+  tableOfContents?: Array<{
+    id: string;
+    text: string;
+    level: number;
+  }>;
 }
 
 export interface BlogMetadata {
