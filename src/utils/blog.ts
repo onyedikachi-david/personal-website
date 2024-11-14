@@ -110,3 +110,10 @@ export async function getRecommendedPosts(currentPost: BlogPost): Promise<BlogPo
     )
     .slice(0, 3);
 }
+
+export async function getPostsByTag(tag: string): Promise<BlogPost[]> {
+  const allPosts = await getAllPosts();
+  return allPosts.filter((post) => 
+    post.tags.map(t => t.toLowerCase()).includes(tag.toLowerCase())
+  );
+}

@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { getPostsByTag, getAllPosts } from '@/utils/blog';
-import { generateSiteMetadata } from '@/utils/metadata';
+import { generateMetadata } from '@/lib/metadata';
 import MysticalText from '@/components/MysticalText';
 import Link from 'next/link';
 
@@ -9,10 +9,10 @@ export async function generateMetadata({
 }: {
   params: { tag: string };
 }): Promise<Metadata> {
-  return generateSiteMetadata(
-    `Posts tagged with "${tag}"`,
-    `Explore blog posts about ${tag} and related topics`
-  );
+  return generateMetadata({
+    title: `Posts tagged with "${tag}"`,
+    description: `Explore blog posts about ${tag} and related topics`,
+  });
 }
 
 export async function generateStaticParams() {
@@ -49,27 +49,10 @@ export default async function TagPage({
               className="mystical-card p-6 hover:scale-[1.02] transition-transform"
             >
               <h2 className="text-2xl font-bold mb-3">{post.title}</h2>
-              <div className="flex gap-4 text-gray-400 text-sm mb-4">
-                <time dateTime={post.date}>
-                  {new Date(post.date).toLocaleDateString()}
-                </time>
-                <span>•</span>
+              <p className="text-gray-400 mb-4">{post.excerpt}</p>
+              <div className="flex items-center justify-between text-sm text-gray-500">
+                <span>{post.date}</span>
                 <span>{post.readingTime}</span>
-              </div>
-              <p className="text-gray-300 mb-4">{post.excerpt}</p>
-              <div className="flex flex-wrap gap-2">
-                {post.tags.map((t) => (
-                  <span
-                    key={t}
-                    className={`px-3 py-1 text-sm rounded-full ${
-                      t === tag
-                        ? 'bg-primary text-white'
-                        : 'bg-primary/10 text-primary'
-                    }`}
-                  >
-                    {t}
-                  </span>
-                ))}
               </div>
             </Link>
           ))}
