@@ -47,16 +47,22 @@ type MDXComponentProps = {
 
 const components: MDXComponents = {
   pre: ({ children, ...props }: MDXComponentProps) => {
+    // Extract code content if it's a mermaid diagram
+    if (props.className?.includes('language-mermaid')) {
+      const codeContent = React.Children.toArray(children).find(
+        child => React.isValidElement(child) && child.type === 'code'
+      ) as React.ReactElement | undefined;
+      
+      if (codeContent) {
+        return <ClientMermaidDiagram chart={String(codeContent.props.children)} />;
+      }
+    }
     return <pre {...props}>{children}</pre>;
   },
   code: ({ className, children, ...props }: MDXComponentProps) => {
-    const childArray = React.Children.toArray(children);
-    const codeChild = childArray.find(
-      (child: any) => child.type === 'code'
-    ) as React.ReactElement;
-
+    // Don't process mermaid diagrams here, they're handled in pre
     if (className?.includes('language-mermaid')) {
-      return <ClientMermaidDiagram chart={String(children)} />;
+      return <code className={className} {...props}>{children}</code>;
     }
 
     return (

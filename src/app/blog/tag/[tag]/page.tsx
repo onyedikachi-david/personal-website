@@ -4,16 +4,16 @@ import { generateMetadata } from '@/lib/metadata';
 import MysticalText from '@/components/MysticalText';
 import Link from 'next/link';
 
-export async function generateMetadata({
-  params: { tag },
-}: {
-  params: { tag: string };
-}): Promise<Metadata> {
-  return generateMetadata({
-    title: `Posts tagged with "${tag}"`,
-    description: `Explore blog posts about ${tag} and related topics`,
-  });
-}
+// export async function generateMetadata({
+//   params: { tag },
+// }: {
+//   params: { tag: string };
+// }): Promise<Metadata> {
+//   return generateMetadata({
+//     title: `Posts tagged with "${tag}"`,
+//     description: `Explore blog posts about ${tag} and related topics`,
+//   });
+// }
 
 export async function generateStaticParams() {
   const posts = await getAllPosts();
