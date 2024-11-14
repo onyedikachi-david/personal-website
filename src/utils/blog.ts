@@ -5,42 +5,45 @@ import { unified } from 'unified';
 import remarkParse from 'remark-parse';
 import remarkGfm from 'remark-gfm';
 import { visit } from 'unist-util-visit';
+import { BlogPost as BlogPostType } from '@/types/blog';
 
 export const BLOG_DIR = path.join(process.cwd(), 'src/content/blog');
 
-export interface BlogPost {
-  slug: string;
-  title: string;
-  date: string;
-  author: string;
-  content: string;
-  excerpt: string;
-  tags: string[];
-  tldr?: string;
-  tableOfContents: Array<{ id: string; text: string; level: number }>;
-  readingTime: string;
-}
+export type BlogPost = BlogPostType;
 
 // Function to calculate reading time
-function calculateReadingTime(content: string): string {
+function calculateReadingTime(content: string): BlogPostType['readingTime'] {
   const wordsPerMinute = 200;
   const words = content.trim().split(/\s+/).length;
   const minutes = Math.ceil(words / wordsPerMinute);
-  return `${minutes} min read`;
+  const time = minutes * 60 * 1000; // Convert to milliseconds
+
+  return {
+    text: `${minutes} min read`,
+    minutes: minutes,
+    time: time,
+    words: words,
+  };
 }
 
 // Function to extract headings for table of contents
 function extractHeadings(markdown: string) {
   const headings: Array<{ id: string; text: string; level: number }> = [];
-  const ast = unified().use(remarkParse).use(remarkGfm).parse(markdown);
+  
+  const ast = unified()
+    .use(remarkParse)
+    .use(remarkGfm)
+    .parse(markdown);
 
   visit(ast, 'heading', (node: any) => {
     const text = node.children
-      .filter((child: any) => child.type === 'text')
-      .map((child: any) => child.value)
+      .map((child: any) => (child.type === 'text' ? child.value : ''))
       .join('');
     
-    const id = text.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const id = text
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
     
     headings.push({
       id,
@@ -74,6 +77,7 @@ export async function getPostBySlug(slug: string): Promise<BlogPost> {
       excerpt: data.description || '',
       tags: Array.isArray(data.tags) ? data.tags : [],
       tldr: data.tldr || '',
+      readingTime: calculateReadingTime(content), // Ensure readingTime is always set
     };
 
     return {
@@ -81,7 +85,6 @@ export async function getPostBySlug(slug: string): Promise<BlogPost> {
       content,
       ...cleanData,
       tableOfContents,
-      readingTime,
     };
   } catch (error) {
     console.error(`Error getting post ${slug}:`, error);
@@ -90,30 +93,25 @@ export async function getPostBySlug(slug: string): Promise<BlogPost> {
 }
 
 export async function getAllPosts(): Promise<BlogPost[]> {
-  const slugs = fs
-    .readdirSync(BLOG_DIR)
-    .filter((file) => file.endsWith('.md'))
-    .map((file) => file.replace(/\.md$/, ''));
-
-  const posts = await Promise.all(slugs.map((slug) => getPostBySlug(slug)));
-
-  return posts.sort((post1, post2) => (post1.date > post2.date ? -1 : 1));
+  const slugs = fs.readdirSync(BLOG_DIR)
+    .filter(file => file.endsWith('.md'))
+    .map(file => file.replace(/\.md$/, ''));
+  
+  const posts = await Promise.all(slugs.map(getPostBySlug));
+  
+  return posts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 }
 
 export async function getRecommendedPosts(currentPost: BlogPost): Promise<BlogPost[]> {
   const allPosts = await getAllPosts();
   
   return allPosts
-    .filter((post) => post.slug !== currentPost.slug)
-    .filter((post) => 
-      post.tags.some((tag) => currentPost.tags.includes(tag))
-    )
+    .filter(post => post.slug !== currentPost.slug)
+    .filter(post => post.tags.some(tag => currentPost.tags.includes(tag)))
     .slice(0, 3);
 }
 
 export async function getPostsByTag(tag: string): Promise<BlogPost[]> {
   const allPosts = await getAllPosts();
-  return allPosts.filter((post) => 
-    post.tags.map(t => t.toLowerCase()).includes(tag.toLowerCase())
-  );
+  return allPosts.filter(post => post.tags.includes(tag));
 }

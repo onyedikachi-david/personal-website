@@ -52,8 +52,8 @@ export default async function TagPage({
               <p className="text-gray-400 mb-4">{post.excerpt}</p>
               <div className="flex items-center justify-between text-sm text-gray-500">
                 <span>{post.date}</span>
-                <span>{post.readingTime}</span>
-              </div>
+                {post.readingTime && <span>{post.readingTime.text}</span>}
+                </div>
             </Link>
           ))}
         </div>

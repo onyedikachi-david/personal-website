@@ -121,62 +121,106 @@ export default async function BlogPost({
   const processedContent = processMermaidContent(post.content);
 
   return (
-    <article className="prose prose-invert max-w-4xl mx-auto pt-24 pb-16 px-4">
-      <header className="mb-8">
-        <h1 className="text-4xl md:text-5xl font-bold mb-4">{post.title}</h1>
-        <div className="flex flex-wrap gap-4 text-gray-400 text-sm mb-4">
-          <time dateTime={post.date}>
-            {new Date(post.date).toLocaleDateString()}
-          </time>
-          <span>•</span>
-          <span>{post.readingTime}</span>
-        </div>
-        {post.tags.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {post.tags.map((tag) => (
-              <Link
-                key={tag}
-                href={`/blog/tag/${tag}`}
-                className="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm hover:bg-primary/20 transition-colors"
-              >
-                {tag}
-              </Link>
-            ))}
+    <div className="relative pt-24 pb-16">
+      {/* Table of Contents - Fixed on the left */}
+      {post.tableOfContents && post.tableOfContents.length > 0 && (
+        <nav className="hidden lg:block fixed left-12 2xl:left-[calc((100vw-1400px)/4)] top-32 w-72 overflow-auto max-h-[calc(100vh-9rem)]">
+          <div className="p-4 bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700/50">
+            <h2 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-4">
+              On this page
+            </h2>
+            <ul className="space-y-2.5 text-sm">
+              {post.tableOfContents.map((item) => (
+                <li
+                  key={item.id}
+                  className="hover:text-primary transition-colors"
+                  style={{ paddingLeft: `${(item.level - 1) * 1}rem` }}
+                >
+                  <a 
+                    href={`#${item.id}`}
+                    className="block hover:text-primary transition-colors line-clamp-2"
+                  >
+                    {item.text}
+                  </a>
+                </li>
+              ))}
+            </ul>
           </div>
-        )}
-      </header>
-
-      <ClientReadingProgress />
-
-      <ReactMarkdown
-        remarkPlugins={[remarkMath, remarkGfm]}
-        rehypePlugins={[
-          rehypeKatex,
-          rehypeSlug,
-          rehypePrism
-        ]}
-        components={components}
-      >
-        {processedContent}
-      </ReactMarkdown>
-
-      {recommendedPosts.length > 0 && (
-        <aside className="mt-16">
-          <h2 className="text-2xl font-bold mb-6">Recommended Posts</h2>
-          <div className="grid gap-8">
-            {recommendedPosts.map((post) => (
-              <Link
-                key={post.slug}
-                href={`/blog/${post.slug}`}
-                className="block p-6 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors"
-              >
-                <h3 className="text-xl font-bold mb-2">{post.title}</h3>
-                <p className="text-gray-400">{post.excerpt}</p>
-              </Link>
-            ))}
-          </div>
-        </aside>
+        </nav>
       )}
-    </article>
+
+      {/* Main Content */}
+      <article className="prose prose-invert lg:prose-lg max-w-[1400px] mx-auto">
+        <div className="max-w-3xl mx-auto px-4 lg:px-0">
+          <header className="mb-12">
+            <h1 className="text-4xl md:text-5xl font-bold mb-6">{post.title}</h1>
+            <div className="flex flex-wrap gap-4 text-gray-400 text-base mb-6">
+              <time dateTime={post.date}>
+                {new Date(post.date).toLocaleDateString()}
+              </time>
+              <span>•</span>
+              {post.readingTime && <span>{post.readingTime.text}</span>}
+            </div>
+            {post.tags.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-6">
+                {post.tags.map((tag) => (
+                  <Link
+                    key={tag}
+                    href={`/blog/tag/${tag}`}
+                    className="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm hover:bg-primary/20 transition-colors"
+                  >
+                    {tag}
+                  </Link>
+                ))}
+              </div>
+            )}
+
+            {/* TL;DR Section - Right after tags */}
+            {post.tldr && (
+              <div className="mt-8 p-6 bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700/50">
+                <h2 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-3">
+                  TL;DR
+                </h2>
+                <p className="text-gray-300 text-base leading-relaxed">{post.tldr}</p>
+              </div>
+            )}
+          </header>
+
+          <ClientReadingProgress />
+
+          <div className="prose prose-invert lg:prose-lg prose-headings:font-semibold prose-p:text-gray-300 prose-p:leading-relaxed prose-a:text-primary hover:prose-a:text-primary/80 prose-pre:bg-gray-800/50 prose-pre:border prose-pre:border-gray-700/50 prose-code:text-primary prose-code:font-normal prose-img:rounded-lg">
+            <ReactMarkdown
+              remarkPlugins={[remarkMath, remarkGfm]}
+              rehypePlugins={[
+                rehypeKatex,
+                rehypeSlug,
+                rehypePrism
+              ]}
+              components={components}
+            >
+              {processedContent}
+            </ReactMarkdown>
+          </div>
+
+          {recommendedPosts.length > 0 && (
+            <aside className="mt-20">
+              <h2 className="text-2xl font-bold mb-8">Recommended Posts</h2>
+              <div className="grid gap-8">
+                {recommendedPosts.map((post) => (
+                  <Link
+                    key={post.slug}
+                    href={`/blog/${post.slug}`}
+                    className="block p-6 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors"
+                  >
+                    <h3 className="text-xl font-bold mb-2">{post.title}</h3>
+                    <p className="text-gray-400">{post.excerpt}</p>
+                  </Link>
+                ))}
+              </div>
+            </aside>
+          )}
+        </div>
+      </article>
+    </div>
   );
 }
