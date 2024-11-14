@@ -1,0 +1,188 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 255, 255, 255;
+  --background-start-rgb: 17, 24, 39;
+  --background-end-rgb: 17, 24, 39;
+  --primary-rgb: 98, 0, 255;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-start-rgb));
+}
+
+@keyframes floatAnimation {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+
+@keyframes glowPulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes float-delayed {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-15px);
+  }
+}
+
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@layer base {
+  body {
+    @apply bg-[#0a0a14] text-white;
+  }
+}
+
+@layer components {
+  .gradient-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-blue-500;
+  }
+
+  /* Mystical Card Styles */
+  .mystical-card {
+    background: rgba(17, 17, 17, 0.7);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border-radius: 10px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .mystical-card:hover {
+    transform: translateY(-2px);
+  }
+
+  .mystical-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(
+      circle,
+      rgba(139, 92, 246, 0.1) 0%,
+      rgba(30, 64, 175, 0.05) 50%,
+      transparent 100%
+    );
+    transform: rotate(-45deg);
+    pointer-events: none;
+    z-index: -1;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .mystical-card:hover::before {
+    transform: rotate(-45deg) scale(1.1);
+  }
+
+  .mystical-card {
+    @apply relative overflow-hidden rounded-xl bg-black/20 backdrop-blur-sm border border-purple-500/10;
+  }
+
+  .mystical-card::before {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-r from-purple-500/5 to-blue-500/5 opacity-0 transition-opacity duration-300;
+  }
+
+  .mystical-card:hover::before {
+    @apply opacity-100;
+  }
+
+  .btn-primary {
+    @apply px-6 py-3 rounded-lg bg-gradient-to-r from-purple-600 to-blue-600 text-white font-medium 
+    hover:from-purple-700 hover:to-blue-700 transform hover:scale-105 transition-all;
+  }
+
+  .btn-secondary {
+    @apply px-6 py-3 rounded-lg bg-transparent border border-purple-500 text-white font-medium 
+    hover:bg-purple-500/10 transform hover:scale-105 transition-all;
+  }
+}
+
+@layer utilities {
+  .text-glow {
+    text-shadow: 0 0 10px rgba(147, 51, 234, 0.5),
+                 0 0 20px rgba(147, 51, 234, 0.3),
+                 0 0 30px rgba(147, 51, 234, 0.2);
+  }
+
+  .gradient-border-mask {
+    mask: 
+      linear-gradient(#fff 0 0) padding-box, 
+      linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+  }
+
+  /* Glowing Text Effect */
+  .glow-text {
+    animation: glow 2s ease-in-out infinite alternate;
+  }
+
+  @keyframes glow {
+    from {
+      text-shadow: 0 0 10px rgba(147, 51, 234, 0.5),
+                   0 0 20px rgba(147, 51, 234, 0.3),
+                   0 0 30px rgba(147, 51, 234, 0.2);
+    }
+    to {
+      text-shadow: 0 0 20px rgba(147, 51, 234, 0.6),
+                   0 0 30px rgba(147, 51, 234, 0.4),
+                   0 0 40px rgba(147, 51, 234, 0.3);
+    }
+  }
+
+  /* Floating Animation */
+  .floating {
+    animation: floating 3s ease-in-out infinite;
+  }
+
+  @keyframes floating {
+    0% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+    100% {
+      transform: translateY(0px);
+    }
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  .animate-float-delayed {
+    animation: float-delayed 8s ease-in-out infinite;
+  }
+  
+  .animate-spin-slow {
+    animation: spin-slow 10s linear infinite;
+  }
+}
