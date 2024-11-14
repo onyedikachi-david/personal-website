@@ -1,7 +1,6 @@
 'use client';
 
 import { FiGithub, FiLinkedin, FiMail, FiExternalLink, FiCode } from 'react-icons/fi';
-import MysticBackground from '@/components/MysticBackground';
 import MysticalText from '@/components/MysticalText';
 import { motion } from 'framer-motion';
 import { projects } from '@/data/projects';
