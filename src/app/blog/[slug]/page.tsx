@@ -1,18 +1,21 @@
-import { Metadata } from 'next';
+import { MDXRemote } from 'next-mdx-remote/rsc';
 import { getPostBySlug, getAllPosts, getRecommendedPosts, BlogPost as BlogPostType } from '@/utils/blog';
+import { notFound } from 'next/navigation';
 import { generateBlogMetadata } from '@/utils/metadata';
-import Link from 'next/link';
-import '@/styles/prism.css';
-import '@fontsource/jetbrains-mono';
-import 'katex/dist/katex.min.css';
-import { compileMDX } from 'next-mdx-remote/rsc';
 import rehypeKatex from 'rehype-katex';
 import rehypeSlug from 'rehype-slug';
 import remarkMath from 'remark-math';
 import remarkGfm from 'remark-gfm';
 import rehypePrism from 'rehype-prism-plus';
 import dynamic from 'next/dynamic';
+import { MDXComponents } from 'mdx/types';
+import { DetailedHTMLProps, ImgHTMLAttributes } from 'react';
 import { MDXImage } from '@/components/MDXImage';
+import Link from 'next/link';
+import '@/styles/prism.css';
+import '@fontsource/jetbrains-mono';
+import 'katex/dist/katex.min.css';
+import { compileMDX } from 'next-mdx-remote/rsc';
 import React from 'react';
 
 // Import components normally since we're using RSC
@@ -21,12 +24,7 @@ import ReadingProgress from '@/components/ReadingProgress';
 
 interface Post extends BlogPostType {}
 
-// Create a client-side wrapper for the reading progress
-const ClientReadingProgress = dynamic(() => import('@/components/ReadingProgress'), {
-  ssr: false
-});
-
-// Create a client-side wrapper for mermaid diagrams
+// Create client-side wrappers
 const ClientMermaidDiagram = dynamic(() => import('@/components/MermaidDiagram'), {
   ssr: false,
   loading: () => (
@@ -36,28 +34,40 @@ const ClientMermaidDiagram = dynamic(() => import('@/components/MermaidDiagram')
   ),
 });
 
-const components = {
-  pre: ({ children, ...props }: any) => {
+const ClientReadingProgress = dynamic(() => import('@/components/ReadingProgress'), {
+  ssr: false
+});
+
+// Type for MDX component props
+type MDXComponentProps = {
+  children?: React.ReactNode;
+  className?: string;
+  [key: string]: any;
+};
+
+const components: MDXComponents = {
+  pre: ({ children, ...props }: MDXComponentProps) => {
+    return <pre {...props}>{children}</pre>;
+  },
+  code: ({ className, children, ...props }: MDXComponentProps) => {
     const childArray = React.Children.toArray(children);
     const codeChild = childArray.find(
       (child: any) => child.type === 'code'
     ) as React.ReactElement;
 
-    if (codeChild && codeChild.props.className?.includes('language-mermaid')) {
-      return <ClientMermaidDiagram chart={codeChild.props.children} />;
+    if (className?.includes('language-mermaid')) {
+      return <ClientMermaidDiagram chart={String(children)} />;
     }
 
-    return <pre {...props}>{children}</pre>;
-  },
-  code: ({ className, children, ...props }: any) => {
     return (
       <code className={className} {...props}>
         {children}
       </code>
     );
   },
+  // Use type assertion for img component
+  img: MDXImage as (props: DetailedHTMLProps<ImgHTMLAttributes<HTMLImageElement>, HTMLImageElement>) => JSX.Element,
   Image: MDXImage,
-  img: MDXImage,
   // Remove h1 from MDX rendering since we're showing the title from frontmatter
   h1: () => null,
 };
@@ -66,8 +76,9 @@ export async function generateMetadata({
   params: { slug },
 }: {
   params: { slug: string };
-}): Promise<Metadata> {
+}) {
   const post = await getPostBySlug(slug);
+  if (!post) return {};
   return generateBlogMetadata(
     post.title,
     post.excerpt,
@@ -93,6 +104,10 @@ export default async function BlogPost({
   try {
     const post = await getPostBySlug(slug);
     const recommendedPosts = await getRecommendedPosts(post);
+
+    if (!post) {
+      notFound();
+    }
 
     const { content } = await compileMDX({
       source: post.content,

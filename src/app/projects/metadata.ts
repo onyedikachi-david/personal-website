@@ -1,30 +1,20 @@
-import { createMetadata } from '@/lib/metadata';
+import { generateMetadata } from '@/lib/metadata';
 
-export const metadata = createMetadata({
-  title: 'Projects by David Anyatonwu - Full Stack & Blockchain Development',
-  description: 'Explore my portfolio of blockchain and full-stack development projects, including smart contracts, DApps, Web3 applications, and modern web solutions.',
+export const metadata = generateMetadata({
+  title: 'Projects',
+  description: 'Explore my portfolio of software engineering projects, including web applications, blockchain solutions, and open-source contributions.',
+  image: '/projects-og.png',
   openGraph: {
-    title: 'Projects by David Anyatonwu - Full Stack & Blockchain Development',
-    description: 'Explore my portfolio of blockchain and full-stack development projects, including smart contracts, DApps, Web3 applications, and modern web solutions.',
     type: 'website',
-    images: [
-      {
-        url: '/og/projects.png',
-        width: 1200,
-        height: 630,
-        alt: 'Projects by David Anyatonwu - Full Stack & Blockchain Development Portfolio',
-      },
+    keywords: [
+      'blockchain projects',
+      'smart contracts',
+      'DApps',
+      'Web3',
+      'full stack development',
+      'React applications',
+      'Node.js',
+      'TypeScript projects',
     ],
   },
-  keywords: [
-    'blockchain projects',
-    'smart contracts',
-    'DApps',
-    'Web3',
-    'full stack development',
-    'React applications',
-    'Node.js',
-    'TypeScript projects',
-    'David Anyatonwu portfolio',
-  ],
 });

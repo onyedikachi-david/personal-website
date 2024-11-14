@@ -1,10 +1,7 @@
-import { createMetadata } from '@/lib/metadata';
+import { generateMetadata } from '@/lib/metadata';
 
-export const metadata = createMetadata({
-  title: 'About David Anyatonwu - Full Stack Developer & Blockchain Engineer',
-  description: 'Learn about David Anyatonwu, a Full Stack Developer and Blockchain Engineer with expertise in Web3, React, and modern web technologies.',
-  openGraph: {
-    title: 'About David Anyatonwu - Full Stack Developer & Blockchain Engineer',
-    description: 'Learn about David Anyatonwu, a Full Stack Developer and Blockchain Engineer with expertise in Web3, React, and modern web technologies.',
-  },
+export const metadata = generateMetadata({
+  title: 'About',
+  description: 'Software Engineer and Technical Writer with expertise in web development, blockchain technology, and distributed systems. Learn more about my journey, skills, and experience.',
+  image: '/about-og.png',
 });

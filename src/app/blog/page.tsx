@@ -2,6 +2,8 @@ import Link from 'next/link';
 import { getAllPosts } from '@/utils/blog';
 import { motion } from 'framer-motion';
 import { FiCalendar, FiUser, FiArrowRight } from 'react-icons/fi';
+import { externalBlogPosts } from '@/data/external-blogs';
+import ExternalBlogCard from '@/components/ExternalBlogCard';
 
 export default async function BlogPage() {
   const posts = await getAllPosts();
@@ -82,6 +84,18 @@ export default async function BlogPage() {
               </Link>
             ))}
           </div>
+
+          {/* External Blog Posts */}
+          {externalBlogPosts.length > 0 && (
+            <section className="mt-16">
+              <h2 className="text-2xl font-semibold mb-6">Posts from Around the Web</h2>
+              <div className="grid gap-6">
+                {externalBlogPosts.map((post) => (
+                  <ExternalBlogCard key={post.url} post={post} />
+                ))}
+              </div>
+            </section>
+          )}
         </div>
       </main>
     </div>

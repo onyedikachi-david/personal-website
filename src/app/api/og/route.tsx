@@ -238,8 +238,14 @@ export async function GET(req: NextRequest) {
         height: 630,
       }
     );
-  } catch (e) {
-    console.error(e);
-    return new Response(`Failed to generate image: ${e.message}`, { status: 500 });
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(`Failed to generate OG image: ${error.message}`);
+      return new Response(`Failed to generate image: ${error.message}`, {
+        status: 500,
+      });
+    }
+    console.error('Failed to generate OG image:', error);
+    return new Response('Failed to generate image', { status: 500 });
   }
 }
