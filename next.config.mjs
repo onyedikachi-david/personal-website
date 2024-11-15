@@ -31,6 +31,10 @@ const nextConfig = {
         protocol: 'https',
         hostname: '**.cloudinary.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'console.algora.io',
+      },
       // Add more trusted domains as needed
     ],
     // Image optimization settings

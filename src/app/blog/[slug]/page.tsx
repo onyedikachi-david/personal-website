@@ -12,6 +12,8 @@ import rehypePrism from 'rehype-prism-plus';
 import '@/styles/prism.css';
 import '@fontsource/jetbrains-mono';
 import 'katex/dist/katex.min.css';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 // Create client-side wrapper for ReadingProgress
 const ClientReadingProgress = dynamic(() => import('@/components/ReadingProgress'), {
@@ -150,45 +152,103 @@ export default async function BlogPost({
       )}
 
       {/* Main Content */}
-      <article className="prose prose-invert lg:prose-lg max-w-[1400px] mx-auto">
-        <div className="max-w-3xl mx-auto px-4 lg:px-0">
-          <header className="mb-12">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6">{post.title}</h1>
-            <div className="flex flex-wrap gap-4 text-gray-400 text-base mb-6">
-              <time dateTime={post.date}>
-                {new Date(post.date).toLocaleDateString()}
-              </time>
-              <span>•</span>
-              {post.readingTime && <span>{post.readingTime.text}</span>}
+      <div className="max-w-3xl mx-auto px-4 lg:px-0">
+        {/* Header Section */}
+        <header className="mb-12 relative">
+          {/* Terminal-like header */}
+          <div className="mb-6 bg-gray-900/50 backdrop-blur-sm rounded-lg border border-primary/20 overflow-hidden">
+            <div className="flex items-center gap-2 px-4 py-2 bg-gray-900/80 border-b border-primary/20">
+              <div className="flex gap-1.5">
+                <div className="w-3 h-3 rounded-full bg-red-500/80" />
+                <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
+                <div className="w-3 h-3 rounded-full bg-green-500/80" />
+              </div>
+              <div className="flex-1 text-center text-sm font-mono text-gray-400">
+                blog-post.md
+              </div>
             </div>
-            {post.tags.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-6">
-                {post.tags.map((tag) => (
-                  <Link
-                    key={tag}
-                    href={`/blog/tag/${tag}`}
-                    className="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm hover:bg-primary/20 transition-colors"
-                  >
-                    {tag}
-                  </Link>
-                ))}
+            <div className="p-6">
+              <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white via-white to-primary/50">
+                {post.title}
+              </h1>
+              <div className="flex flex-wrap gap-4 text-gray-400 text-base mb-6 font-mono">
+                <time dateTime={post.date} className="flex items-center gap-2">
+                  <span className="text-primary">$</span>
+                  <span className="text-gray-300">{new Date(post.date).toLocaleDateString()}</span>
+                </time>
+                <span className="text-gray-600">|</span>
+                {post.readingTime && (
+                  <span className="flex items-center gap-2">
+                    <span className="text-primary">&gt;</span>
+                    <span className="text-gray-300">{post.readingTime.text}</span>
+                  </span>
+                )}
               </div>
-            )}
 
-            {/* TL;DR Section - Right after tags */}
-            {post.tldr && (
-              <div className="mt-8 p-6 bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700/50">
-                <h2 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-3">
-                  TL;DR
-                </h2>
-                <p className="text-gray-300 text-base leading-relaxed">{post.tldr}</p>
+              {post.tags.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {post.tags.map((tag) => (
+                    <Link
+                      key={tag}
+                      href={`/blog/tag/${tag}`}
+                      className="group px-3 py-1 bg-primary/5 hover:bg-primary/10 text-primary rounded-lg text-sm 
+                               transition-all duration-300 border border-primary/10 hover:border-primary/30 font-mono"
+                    >
+                      <span className="text-primary/70 group-hover:text-primary">#_</span>{tag}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* TL;DR Section */}
+          {post.tldr && (
+            <div className="relative group">
+              <div className="absolute -left-4 top-0 bottom-0 w-1 bg-gradient-to-b from-primary via-primary/50 to-transparent rounded-full" />
+              <div className="p-6 bg-gray-900/30 backdrop-blur-sm rounded-lg border border-primary/20 
+                            transition-all duration-300 group-hover:border-primary/30">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="flex items-center gap-2 text-primary">
+                    <span className="text-xs font-mono">[</span>
+                    <span className="text-sm font-medium uppercase tracking-wider">TL;DR</span>
+                    <span className="text-xs font-mono">]</span>
+                  </div>
+                  <div className="h-px flex-1 bg-gradient-to-r from-primary/50 to-transparent" />
+                </div>
+                <div className="font-mono text-base leading-relaxed">
+                  <span className="text-primary">const</span>{' '}
+                  <span className="text-blue-400">summary</span>{' '}
+                  <span className="text-gray-400">=</span>{' '}
+                  <span className="text-gray-300">{post.tldr}</span>
+                  <span className="text-gray-400">;</span>
+                </div>
               </div>
-            )}
-          </header>
+            </div>
+          )}
+        </header>
 
-          <ClientReadingProgress />
+        <ClientReadingProgress />
 
-          <div className="prose prose-invert lg:prose-lg prose-headings:font-semibold prose-p:text-gray-300 prose-p:leading-relaxed prose-a:text-primary hover:prose-a:text-primary/80 prose-pre:bg-gray-800/50 prose-pre:border prose-pre:border-gray-700/50 prose-code:text-primary prose-code:font-normal prose-img:rounded-lg">
+        {/* Article Content */}
+        <article className="relative mt-8 group">
+          <div className="absolute -left-4 top-0 bottom-0 w-0.5 bg-gradient-to-b from-primary via-primary/30 to-transparent" />
+          <div className="prose prose-invert lg:prose-lg max-w-none
+            prose-pre:bg-gray-900/50 prose-pre:backdrop-blur-sm 
+            prose-pre:border prose-pre:border-primary/20 prose-pre:rounded-lg
+            prose-code:text-primary prose-code:font-mono prose-code:before:content-[''] prose-code:after:content-['']
+            prose-headings:text-gray-100 prose-headings:font-mono prose-headings:font-medium
+            prose-h2:text-xl prose-h2:mt-8 prose-h2:mb-4 prose-h2:flex prose-h2:items-center prose-h2:gap-2
+            prose-h2:before:content-['##'] prose-h2:before:text-primary/50 prose-h2:before:text-sm
+            prose-h3:text-lg prose-h3:mt-6 prose-h3:mb-3 prose-h3:flex prose-h3:items-center prose-h3:gap-2
+            prose-h3:before:content-['###'] prose-h3:before:text-primary/50 prose-h3:before:text-sm
+            prose-p:text-gray-300 prose-p:leading-relaxed
+            prose-a:text-primary prose-a:no-underline hover:prose-a:text-primary/80
+            prose-strong:text-primary/90 prose-strong:font-medium
+            prose-ul:my-6 prose-li:text-gray-300 prose-li:marker:text-primary/50
+            prose-blockquote:border-l-primary/50 prose-blockquote:bg-gray-900/30 prose-blockquote:backdrop-blur-sm
+            prose-blockquote:rounded-r-lg prose-blockquote:py-2 prose-blockquote:text-gray-300
+            prose-img:rounded-lg prose-img:border prose-img:border-gray-800/50">
             <ReactMarkdown
               remarkPlugins={[remarkMath, remarkGfm]}
               rehypePlugins={[
@@ -201,26 +261,49 @@ export default async function BlogPost({
               {processedContent}
             </ReactMarkdown>
           </div>
+        </article>
 
-          {recommendedPosts.length > 0 && (
-            <aside className="mt-20">
-              <h2 className="text-2xl font-bold mb-8">Recommended Posts</h2>
-              <div className="grid gap-8">
-                {recommendedPosts.map((post) => (
+        {/* Recommended Posts Section */}
+        {recommendedPosts.length > 0 && (
+          <aside className="mt-20 relative group">
+            <div className="absolute -left-4 top-0 bottom-0 w-1 bg-gradient-to-b from-primary via-primary/30 to-transparent rounded-full" />
+            <div className="relative">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="flex items-center gap-2 text-primary font-mono">
+                  <span className="text-sm">function</span>
+                  <span className="text-white">getRecommended</span>
+                  <span className="text-primary/70">( )</span>
+                  <span className="text-primary/70">{" {"}</span>
+                </div>
+                <div className="h-px flex-1 bg-gradient-to-r from-primary/50 to-transparent" />
+              </div>
+              <div className="grid gap-4 pl-4 border-l border-primary/10">
+                {recommendedPosts.map((post, index) => (
                   <Link
                     key={post.slug}
                     href={`/blog/${post.slug}`}
-                    className="block p-6 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors"
+                    className="group/post block p-6 bg-gray-900/30 backdrop-blur-sm rounded-lg border border-primary/10 
+                             hover:border-primary/30 transition-all duration-300"
                   >
-                    <h3 className="text-xl font-bold mb-2">{post.title}</h3>
-                    <p className="text-gray-400">{post.excerpt}</p>
+                    <div className="flex items-center gap-2 mb-2 font-mono text-sm text-primary/70 group-hover/post:text-primary">
+                      <span>return</span>
+                      <span>[{index}]</span>
+                      <span>=&gt;</span>
+                    </div>
+                    <h3 className="text-xl font-bold mb-2 group-hover/post:text-primary transition-colors">
+                      {post.title}
+                    </h3>
+                    <p className="text-gray-400 font-mono text-sm">
+                      <span className="text-primary/70 group-hover/post:text-primary">//</span> {post.excerpt}
+                    </p>
                   </Link>
                 ))}
               </div>
-            </aside>
-          )}
-        </div>
-      </article>
+              <div className="mt-2 text-primary/70 font-mono pl-4">{"}"}</div>
+            </div>
+          </aside>
+        )}
+      </div>
     </div>
   );
 }
