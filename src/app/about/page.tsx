@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import ContactMethods from '@/components/ContactMethods';
+import { fetchAlgoraContributions, calculateContributionStats } from '@/lib/algora';
 
 const skills = {
   languages: {
@@ -27,14 +28,6 @@ const skills = {
     concepts: ['Smart Contracts', 'DeFi', 'NFTs', 'DAOs'],
   },
 };
-
-const achievements = [
-  '> Deployed 42 smart contracts to mainnet',
-  '> Contributed to 137 open source projects',
-  '> Wrote 256 technical articles',
-  '> Fixed 512 bugs in production',
-  '> Survived 1024 merge conflicts',
-];
 
 const socialLinks = [
   {
@@ -120,7 +113,18 @@ function Matrix() {
   );
 }
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const contributions = await fetchAlgoraContributions('onyedikachi-david');
+  const stats = calculateContributionStats(contributions);
+
+  const achievements = [
+    `> Contributed to ${stats.totalProjects} open source projects`,
+    `> Made ${stats.totalPRs} pull requests`,
+    `> Used ${stats.technologies.length} different technologies`,
+    `> Earned $${(stats.totalReward / 100).toFixed(2)}k in bounties`,
+    '> Survived countless merge conflicts',
+  ];
+
   return (
     <div className="relative min-h-screen">
       {/* Tech-inspired Background */}
@@ -500,6 +504,9 @@ export default function AboutPage() {
                   {achievement}
                 </p>
               ))}
+            </div>
+            <div className="text-sm text-gray-500 mt-4">
+              Achievement data culled from algora.io
             </div>
           </div>
         </section>

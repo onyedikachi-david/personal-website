@@ -66,6 +66,9 @@ export default function OpenSource({ contributions, stats }: OpenSourceProps) {
                   icon={<FiCode className="w-5 h-5" />}
                 />
               </div>
+              <div className="text-center mt-4 text-sm text-gray-500">
+                Data culled from algora.io
+              </div>
             </div>
           </div>
         </motion.div>
